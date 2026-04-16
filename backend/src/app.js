@@ -31,6 +31,22 @@ app.use('/api/v1/livres', livresRouter);
 // Toutes les routes d'adhérents seront préfixées par /api/v1/adherents
 app.use('/api/v1/adherents', adherentsRouter);
 
+// GET /api/v1/emprunts/retards → liste des emprunts en retard
+export const getRetards = async (req, res) => {
+  const result = await pool.query(`
+    SELECT e.id, l.titre, a.nom || ' ' || a.prenom AS adherent,
+           e.date_retour_prevue,
+           CURRENT_DATE - e.date_retour_prevue AS jours_retard
+    FROM emprunts e
+    JOIN livres    l ON e.livre_id    = l.id
+    JOIN adherents a ON e.adherent_id = a.id
+    WHERE e.date_retour_effective IS NULL
+      AND e.date_retour_prevue < CURRENT_DATE
+    ORDER BY jours_retard DESC
+  `);
+  res.json(result.rows);
+};
+
 // Route de santé — permet de vérifier que le serveur tourne
 app.get('/health', (req, res) => {
   res.json({
@@ -52,6 +68,13 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Erreur serveur:', err.message);
   res.status(500).json({ erreur: 'Erreur interne du serveur' });
+});
+
+app.use((err, req, res, next) => {
+  const status = err.statusCode || 500;
+  const message = status === 500 ? 'Erreur interne du serveur' : err.message;
+  if (status === 500) console.error('[ERREUR]', err.message);
+  res.status(status).json({ erreur: message });
 });
 
 // ── Démarrage ─────────────────────────────────────────────────────────
