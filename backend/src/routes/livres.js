@@ -15,6 +15,14 @@ router.get('/:id', controller.getLivreById);
 // POST /api/v1/livres          → créer un nouveau livre
 router.post('/', controller.createLivre);
 
+// GET /api/v1/livres/recherche?q=clean
+router.get('/recherche', (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ erreur: 'Paramètre q requis' });
+  const resultats = livresModel.findAll({ recherche: q });
+  res.json({ query: q, total: resultats.length, resultats });
+});
+
 // PUT /api/v1/livres/:id       → modifier un livre
 router.put('/:id', controller.updateLivre);
 
