@@ -1,7 +1,7 @@
 ﻿// ─── backend/src/controllers/livresController.js ──────────────────────
 // Controller pour les livres — logique métier entre les routes et les données
 
-import * as livresModel from '../models/livresData.js';
+import * as livresModel from '../models/livresData_bak.js';
 
 /**
  * Récupère tous les livres avec filtres optionnels via query params.
