@@ -31,22 +31,6 @@ app.use('/api/v1/livres', livresRouter);
 // Toutes les routes d'adhérents seront préfixées par /api/v1/adherents
 app.use('/api/v1/adherents', adherentsRouter);
 
-// GET /api/v1/emprunts/retards → liste des emprunts en retard
-export const getRetards = async (req, res) => {
-  const result = await pool.query(`
-    SELECT e.id, l.titre, a.nom || ' ' || a.prenom AS adherent,
-           e.date_retour_prevue,
-           CURRENT_DATE - e.date_retour_prevue AS jours_retard
-    FROM emprunts e
-    JOIN livres    l ON e.livre_id    = l.id
-    JOIN adherents a ON e.adherent_id = a.id
-    WHERE e.date_retour_effective IS NULL
-      AND e.date_retour_prevue < CURRENT_DATE
-    ORDER BY jours_retard DESC
-  `);
-  res.json(result.rows);
-};
-
 // Route de santé — permet de vérifier que le serveur tourne
 app.get('/health', (req, res) => {
   res.json({
