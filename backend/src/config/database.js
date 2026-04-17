@@ -1,4 +1,4 @@
-﻿// backend/src/config/database.js
+// backend/src/config/database.js
 /**
  * Pool de connexions PostgreSQL partagé dans toute l'application.
  * Chargé via Node 24 : node --env-file=.env src/app.js
@@ -9,7 +9,7 @@ const { Pool } = pg;
 
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 5432,
+  port: parseInt(process.env.DB_PORT || '5432'),
   database: process.env.DB_NAME || 'minilib',
   user: process.env.DB_USER || 'minilib',
   password: process.env.DB_PASSWORD,

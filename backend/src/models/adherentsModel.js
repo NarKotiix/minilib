@@ -1,4 +1,4 @@
-﻿// backend/src/models/adherentsModel.js
+// backend/src/models/adherentsModel.js
 /**
  * Accès aux données adhérents via PostgreSQL.
  * @module adherentsModel
@@ -16,7 +16,10 @@ const genererNumeroAdherent = async () => {
   return `ADH-${String(count).padStart(3, '0')}`;   // ADH-001, ADH-042...
 };
 
-/** @async @returns {Promise<Array>} Tous les adhérents actifs */
+/** 
+ * @async 
+ * @returns {Promise<Array<any>>} Tous les adhérents actifs 
+ */
 export const findAll = async () => {
   const result = await pool.query(
     'SELECT * FROM adherents WHERE actif = true ORDER BY nom, prenom'
@@ -33,7 +36,7 @@ export const findById = async (id) => {
 /**
  * Crée un nouvel adhérent avec numéro automatique.
  * @async
- * @param {Object} data - { nom, prenom, email }
+ * @param {{ nom: string, prenom: string, email: string }} data - { nom, prenom, email }
  * @returns {Promise<Object>} Adhérent créé
  */
 export const create = async ({ nom, prenom, email }) => {

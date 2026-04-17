@@ -1,4 +1,5 @@
-﻿// backend/src/models/livresModel.js
+// backend/src/models/livresModel.js
+// Annotations TypeScript via JSDoc — compatible Node.js sans compilation
 /**
  * Accès aux données livres via PostgreSQL.
  * Remplace l'ancien livresData.js en mémoire.
@@ -8,6 +9,8 @@
  */
 import pool from '../config/database.js';
 
+/** @import { Livre, CreateLivreDto, FiltresLivre } from '../types/index.js' */
+
 /**
  * Récupère tous les livres avec filtres optionnels.
  *
@@ -16,7 +19,7 @@ import pool from '../config/database.js';
  * @param {string}  [filtres.genre]
  * @param {boolean} [filtres.disponible]
  * @param {string}  [filtres.recherche]  - Recherche dans titre ou auteur (ILIKE)
- * @returns {Promise<Array>} Tableau de livres
+ * @returns {Promise<Array<any>>} Tableau de livres
  */
 export const findAll = async (filtres = {}) => {
   const conditions = [];
@@ -29,7 +32,7 @@ export const findAll = async (filtres = {}) => {
   }
   if (filtres.disponible !== undefined) {
     conditions.push(`disponible = $${idx++}`);
-    valeurs.push(filtres.disponible === 'true');
+    valeurs.push(typeof filtres.disponible === 'boolean' ? filtres.disponible : filtres.disponible === 'true');
   }
   if (filtres.recherche) {
     conditions.push(`(titre ILIKE $${idx} OR auteur ILIKE $${idx})`);
@@ -59,7 +62,7 @@ export const findById = async (id) => {
 /**
  * Crée un nouveau livre.
  * @async
- * @param {Object} data - { isbn, titre, auteur, annee, genre }
+ * @param {{ isbn: string, titre: string, auteur: string, annee?: number, genre?: string }} data - { isbn, titre, auteur, annee, genre }
  * @returns {Promise<Object>} Le livre créé avec son id
  */
 export const create = async ({ isbn, titre, auteur, annee, genre }) => {
@@ -103,5 +106,5 @@ export const remove = async (id) => {
   const result = await pool.query(
     'DELETE FROM livres WHERE id = $1 RETURNING id', [id]
   );
-  return result.rowCount > 0;
+  return (result.rowCount || 0) > 0;
 };

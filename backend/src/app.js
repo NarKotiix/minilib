@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Middleware de logging minimaliste — affiche chaque requête reçue
-app.use((req, res, next) => {
+app.use(/** @param {import('express').Request} req @param {import('express').Response} res @param {import('express').NextFunction} next */(req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();   // next() = passer au middleware/route suivant
 });
@@ -32,7 +32,7 @@ app.use('/api/v1/livres', livresRouter);
 app.use('/api/v1/adherents', adherentsRouter);
 
 // Route de santé — permet de vérifier que le serveur tourne
-app.get('/health', (req, res) => {
+app.get('/health', /** @param {import('express').Request} req @param {import('express').Response} res */(req, res) => {
   res.json({
     status: 'OK',
     message: 'Serveur MiniLib opérationnel',
@@ -41,7 +41,7 @@ app.get('/health', (req, res) => {
 });
 
 // Middleware de gestion des routes inconnues (404)
-app.use((req, res) => {
+app.use(/** @param {import('express').Request} req @param {import('express').Response} res */(req, res) => {
   res.status(404).json({
     erreur: `Route ${req.method} ${req.url} non trouvée`,
   });
@@ -49,12 +49,12 @@ app.use((req, res) => {
 
 // Middleware de gestion des erreurs serveur (500)
 // Express reconnaît ce middleware à ses 4 paramètres (err en premier)
-app.use((err, req, res, next) => {
+app.use(/** @param {Error} err @param {import('express').Request} req @param {import('express').Response} res @param {import('express').NextFunction} next */(err, req, res, next) => {
   console.error('Erreur serveur:', err.message);
   res.status(500).json({ erreur: 'Erreur interne du serveur' });
 });
 
-app.use((err, req, res, next) => {
+app.use(/** @param {any} err @param {import('express').Request} req @param {import('express').Response} res @param {import('express').NextFunction} next */(err, req, res, next) => {
   const status = err.statusCode || 500;
   const message = status === 500 ? 'Erreur interne du serveur' : err.message;
   if (status === 500) console.error('[ERREUR]', err.message);

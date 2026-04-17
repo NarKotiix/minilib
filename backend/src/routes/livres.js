@@ -1,10 +1,12 @@
-﻿// ─── backend/src/routes/livres.js ──────────────────────────────────────
+// ─── backend/src/routes/livres.js ──────────────────────────────────────
 // Routeur Express pour les livres
 // Toutes ces routes sont préfixées par /api/v1/livres dans app.js
 
 import express from 'express';
 import asyncWrapper from '../middleware/asyncWrapper.js';
 import * as controller from '../controllers/livresController.js';
+import * as livresModel from '../models/livresModel.js';
+
 const router = express.Router();
 
 // GET /api/v1/livres           → liste tous les livres (+ filtres query params)
@@ -17,10 +19,10 @@ router.get('/:id', asyncWrapper(controller.getLivreById));
 router.post('/', asyncWrapper(controller.createLivre));
 
 // GET /api/v1/livres/recherche?q=clean
-router.get('/recherche', asyncWrapper(async (req, res) => {
+router.get('/recherche', asyncWrapper(/** @param {import('express').Request} req @param {import('express').Response} res */async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ erreur: 'Paramètre q requis' });
-  const resultats = await livresModel.findAll({ recherche: q });
+  const resultats = await livresModel.findAll({ recherche: typeof q === 'string' ? q : undefined });
   res.json({ query: q, total: resultats.length, resultats });
 }));
 

@@ -1,7 +1,7 @@
-﻿// ─── backend/src/controllers/livresController.js ──────────────────────
+// ─── backend/src/controllers/livresController.js ──────────────────────
 // Controller pour les livres — logique métier entre les routes et les données
 
-import * as livresModel from '../models/livresData_bak.js';
+import * as livresModel from '../models/livresModel.js';
 
 /**
  * Récupère tous les livres avec filtres optionnels via query params.
@@ -10,11 +10,15 @@ import * as livresModel from '../models/livresData_bak.js';
  * @param {import('express').Request}  req - Requête Express
  * @param {import('express').Response} res - Réponse Express
  */
-const getLivres = (req, res) => {
+const getLivres = async (req, res) => {
   try {
     // req.query contient les paramètres de l'URL (?genre=...&disponible=...)
     const { genre, disponible, recherche } = req.query;
-    const livres = livresModel.findAll({ genre, disponible, recherche });
+    const livres = await livresModel.findAll({ 
+      genre: typeof genre === 'string' ? genre : undefined, 
+      disponible: typeof disponible === 'string' ? (disponible === 'true') : undefined, 
+      recherche: typeof recherche === 'string' ? recherche : undefined 
+    });
     res.json(livres);   // 200 OK implicite
   } catch (error) {
     res.status(500).json({ erreur: 'Erreur lors de la récupération des livres' });
@@ -28,8 +32,8 @@ const getLivres = (req, res) => {
  * @param {import('express').Request}  req
  * @param {import('express').Response} res
  */
-const getLivreById = (req, res) => {
-  const livre = livresModel.findById(req.params.id);
+const getLivreById = async (req, res) => {
+  const livre = await livresModel.findById(Number(req.params.id));
   if (!livre) {
     // 404 Not Found — ressource inexistante
     return res.status(404).json({ erreur: `Livre id:${req.params.id} non trouvé` });
@@ -45,7 +49,7 @@ const getLivreById = (req, res) => {
  * @param {import('express').Request}  req
  * @param {import('express').Response} res
  */
-const createLivre = (req, res) => {
+const createLivre = async (req, res) => {
   const { isbn, titre, auteur, annee, genre } = req.body;
 
   // ── Validation des champs obligatoires ──────────────────────────────
@@ -62,7 +66,7 @@ const createLivre = (req, res) => {
     });
   }
 
-  const nouveau = livresModel.create({ isbn, titre, auteur, annee, genre });
+  const nouveau = await livresModel.create({ isbn, titre, auteur, annee, genre });
   // 201 Created — ressource créée avec succès
   res.status(201).json(nouveau);
 };
@@ -74,8 +78,8 @@ const createLivre = (req, res) => {
  * @param {import('express').Request}  req
  * @param {import('express').Response} res
  */
-const updateLivre = (req, res) => {
-  const misAJour = livresModel.update(req.params.id, req.body);
+const updateLivre = async (req, res) => {
+  const misAJour = await livresModel.update(Number(req.params.id), req.body);
   if (!misAJour) {
     return res.status(404).json({ erreur: `Livre id:${req.params.id} non trouvé` });
   }
@@ -89,8 +93,8 @@ const updateLivre = (req, res) => {
  * @param {import('express').Request}  req
  * @param {import('express').Response} res
  */
-const deleteLivre = (req, res) => {
-  const supprimé = livresModel.remove(req.params.id);
+const deleteLivre = async (req, res) => {
+  const supprimé = await livresModel.remove(Number(req.params.id));
   if (!supprimé) {
     return res.status(404).json({ erreur: `Livre id:${req.params.id} non trouvé` });
   }
